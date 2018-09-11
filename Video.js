@@ -359,6 +359,7 @@ Video.propTypes = {
   disableFocus: PropTypes.bool,
   controls: PropTypes.bool,
   audioOnly: PropTypes.bool,
+  reportProgressWhileSeeking: PropTypes.bool,
   currentTime: PropTypes.number,
   progressUpdateInterval: PropTypes.number,
   useTextureView: PropTypes.bool,
