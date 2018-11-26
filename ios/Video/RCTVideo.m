@@ -61,6 +61,7 @@ static int const RCTVideoUnset = -1;
   BOOL _playbackStalled;
   BOOL _playInBackground;
   BOOL _playWhenInactive;
+  BOOL _pictureInPicture;
   NSString * _ignoreSilentSwitch;
   NSString * _resizeMode;
   BOOL _fullscreenPlayerPresented;
@@ -89,6 +90,7 @@ static int const RCTVideoUnset = -1;
     _playInBackground = false;
     _allowsExternalPlayback = YES;
     _playWhenInactive = false;
+	_pictureInPicture = false;
     _ignoreSilentSwitch = @"inherit"; // inherit, ignore, obey
 	_restoreUserInterfaceForPIPStopCompletionHandler = NULL;
 #if __has_include(<react-native-video/RCTVideoCache.h>)
@@ -355,12 +357,6 @@ static int const RCTVideoUnset = -1;
                                         @"isNetwork": [NSNumber numberWithBool:(bool)[source objectForKey:@"isNetwork"]]},
                                     @"target": self.reactTag
                                 });
-      }
-
-      if (@available(iOS 9, *)) {
-        if (self.onIsPictureInPictureSupported) {
-          self.onIsPictureInPictureSupported(@{@"supported": [NSNumber numberWithBool:(bool)[AVPictureInPictureController isPictureInPictureSupported]]});
-        }
       }
     }];
   });
@@ -736,11 +732,16 @@ static int const RCTVideoUnset = -1;
 
 - (void)setPictureInPicture:(BOOL)pictureInPicture
 {
-  if (_pipController && pictureInPicture && ![_pipController isPictureInPictureActive]) {
+  if (_pictureInPicture == pictureInPicture) {
+    return;
+  }
+
+  _pictureInPicture = pictureInPicture;
+  if (_pipController && _pictureInPicture && ![_pipController isPictureInPictureActive]) {
     dispatch_async(dispatch_get_main_queue(), ^{
       [_pipController startPictureInPicture];
     });
-  } else if (_pipController && !pictureInPicture && [_pipController isPictureInPictureActive]) {
+  } else if (_pipController && !_pictureInPicture && [_pipController isPictureInPictureActive]) {
     dispatch_async(dispatch_get_main_queue(), ^{
       [_pipController stopPictureInPicture];
 	});
@@ -756,12 +757,10 @@ static int const RCTVideoUnset = -1;
 }
 
 - (void)setupPipController {
-  if (@available(iOS 9, *)) {
-    if (!_pipController && _playerLayer && [AVPictureInPictureController isPictureInPictureSupported]) {
-	  // Create new controller passing reference to the AVPlayerLayer
-      _pipController = [[AVPictureInPictureController alloc] initWithPlayerLayer:_playerLayer];
-      _pipController.delegate = self;
-    }
+  if (!_pipController && _playerLayer && [AVPictureInPictureController isPictureInPictureSupported]) {
+    // Create new controller passing reference to the AVPlayerLayer
+    _pipController = [[AVPictureInPictureController alloc] initWithPlayerLayer:_playerLayer];
+    _pipController.delegate = self;
   }
 }
 
@@ -1351,14 +1350,18 @@ static int const RCTVideoUnset = -1;
 #pragma mark - Picture in Picture
 
 - (void)pictureInPictureControllerDidStopPictureInPicture:(AVPictureInPictureController *)pictureInPictureController {
-  if (self.onIsPictureInPictureActive && _pipController) {
-    self.onIsPictureInPictureActive(@{@"active": [NSNumber numberWithBool:false]});
+  if (self.onPictureInPictureStatusChanged) {
+    self.onPictureInPictureStatusChanged(@{
+										   @"isActive": [NSNumber numberWithBool:false]
+										   });
   }
 }
 
 - (void)pictureInPictureControllerDidStartPictureInPicture:(AVPictureInPictureController *)pictureInPictureController {
-  if (self.onIsPictureInPictureActive && _pipController) {
-    self.onIsPictureInPictureActive(@{@"active": [NSNumber numberWithBool:true]});
+  if (self.onPictureInPictureStatusChanged) {
+    self.onPictureInPictureStatusChanged(@{
+										   @"isActive": [NSNumber numberWithBool:true]
+										   });
   }
 }
 
@@ -1376,6 +1379,9 @@ static int const RCTVideoUnset = -1;
 
 - (void)pictureInPictureController:(AVPictureInPictureController *)pictureInPictureController restoreUserInterfaceForPictureInPictureStopWithCompletionHandler:(void (^)(BOOL))completionHandler {
   NSAssert(_restoreUserInterfaceForPIPStopCompletionHandler == NULL, @"restoreUserInterfaceForPIPStopCompletionHandler was not called after picture in picture was exited.");
+  if (self.onRestoreUserInterfaceForPictureInPictureStop) {
+    self.onRestoreUserInterfaceForPictureInPictureStop(@{});
+  }
   _restoreUserInterfaceForPIPStopCompletionHandler = completionHandler;
 }
 
