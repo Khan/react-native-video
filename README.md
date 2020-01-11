@@ -3,14 +3,20 @@
 A `<Video>` component for react-native, as seen in
 [react-native-login](https://github.com/brentvatne/react-native-login)!
 
+Version 5.x recommends react-native >= 0.60.0 for Android 64bit builds and Android X support.
+
 Version 4.x requires react-native >= 0.57.0
 
 Version 3.x requires react-native >= 0.40.0
 
+### Version 5.0.0 breaking changes
+
+Version 5 introduces breaking changes on Android, please check carefully the steps described there: [Android Installation](#Android-installation)
+
 ### Version 4.0.0 breaking changes
 Version 4.0.0 changes some behaviors and may require updates to your Gradle files.  See [Updating](#updating) for details.
 
-Version 4.0.0 now requires Android SDK 26+ and Gradle 3 plugin in order to support ExoPlayer 2.9.0. Google is dropping support for apps using SDKs older than 26 as of October 2018 and Gradle 2 as of January 2019. React Native 0.57 defaults to Gradle 3 & SDK 27.
+Version 4.0.0 now requires Android target SDK 26+ and Gradle 3 plugin in order to support ExoPlayer 2.9.0. Google is dropping support for apps using target SDKs older than 26 as of October 2018 and Gradle 2 as of January 2019. React Native 0.57 defaults to Gradle 3 & SDK 27.
 
 If you need to support an older React Native version, you should use react-native-video 3.2.1.
 
@@ -20,6 +26,11 @@ Version 3.0 features a number of changes to existing behavior. See [Updating](#u
 ## Table of Contents
 
 * [Installation](#installation)
+  * [iOS](#ios-installation)
+  * [tvOS](#tvos-installation)
+  * [Android](#android-installation)
+  * [Windows](#windows-installation)
+  * [react-native-dom](#react-native-dom-installation)
 * [Usage](#usage)
 * [iOS App Transport Security](#ios-app-transport-security)
 * [Audio Mixing](#audio-mixing)
@@ -42,16 +53,17 @@ yarn add react-native-video
 
 Then follow the instructions for your platform to link react-native-video into your project:
 
+### iOS installation
 <details>
-  <summary>iOS</summary>
+  <summary>iOS details</summary>
 
-### Standard Method
+#### Standard Method
 
 Run `react-native link react-native-video` to link the react-native-video library.
 
-### Using CocoaPods (required to enable caching)
+#### Using CocoaPods (required to enable caching)
 
-Setup your Podfile like it is described in the [react-native documentation](https://facebook.github.io/react-native/docs/integration-with-existing-apps#configuring-cocoapods-dependencies). 
+Setup your Podfile like it is described in the [react-native documentation](https://facebook.github.io/react-native/docs/integration-with-existing-apps#configuring-cocoapods-dependencies).
 
 Depending on your requirements you have to choose between the two possible subpodspecs:
 
@@ -73,9 +85,10 @@ end
 
 </details>
 
-<details>
-  <summary>tvOS</summary>
-  
+### tvOS installation
+  <details>
+  <summary>tvOS details</summary>
+
 `react-native link react-native-video` doesn’t work properly with the tvOS target so we need to add the library manually.
 
 First select your project in Xcode.
@@ -95,14 +108,15 @@ Select RCTVideo-tvOS
 <img src="./docs/tvOS-step-4.jpg" width="40%">
 </details>
 
+### Android installation
 <details>
-  <summary>Android</summary>
+  <summary>Android details</summary>
 
 Run `react-native link react-native-video` to link the react-native-video library.
 
 Or if you have trouble, make the following additions to the given files manually:
 
-**android/settings.gradle**
+#### **android/settings.gradle**
 
 The newer ExoPlayer library will work for most people.
 
@@ -118,17 +132,30 @@ include ':react-native-video'
 project(':react-native-video').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-video/android')
 ```
 
+#### **android/app/build.gradle**
 
-**android/app/build.gradle**
+From version >= 5.0.0, you have to apply this changes:
 
-```gradle
+```diff
 dependencies {
    ...
-   compile project(':react-native-video')
+    compile project(':react-native-video')
++   implementation "androidx.appcompat:appcompat:1.0.0"
+-   implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+
 }
 ```
 
-**MainApplication.java**
+#### **android/gradle.properties**
+
+Migrating to AndroidX (needs version >= 5.0.0):
+
+```gradle.properties
+android.useAndroidX=true
+android.enableJetifier=true
+```
+
+#### **MainApplication.java**
 
 On top, where imports are:
 
@@ -149,12 +176,13 @@ protected List<ReactPackage> getPackages() {
 ```
 </details>
 
+### Windows installation
 <details>
-  <summary>Windows</summary>
+  <summary>Windows details</summary>
 
 Make the following additions to the given files manually:
 
-**windows/myapp.sln**
+#### **windows/myapp.sln**
 
 Add the `ReactNativeVideo` project to your solution.
 
@@ -163,7 +191,7 @@ Add the `ReactNativeVideo` project to your solution.
   * UWP: Select `node_modules\react-native-video\windows\ReactNativeVideo\ReactNativeVideo.csproj`
   * WPF: Select `node_modules\react-native-video\windows\ReactNativeVideo.Net46\ReactNativeVideo.Net46.csproj`
 
-**windows/myapp/myapp.csproj**
+#### **windows/myapp/myapp.csproj**
 
 Add a reference to `ReactNativeVideo` to your main application project. From Visual Studio 2015:
 
@@ -171,7 +199,7 @@ Add a reference to `ReactNativeVideo` to your main application project. From Vis
   * UWP: Check `ReactNativeVideo` from Solution Projects.
   * WPF: Check `ReactNativeVideo.Net46` from Solution Projects.
 
-**MainPage.cs**
+#### **MainPage.cs**
 
 Add the `ReactVideoPackage` class to your list of exported packages.
 ```cs
@@ -198,12 +226,13 @@ using System.Collections.Generic;
 ```
 </details>
 
+### react-native-dom installation
 <details>
-  <summary>react-native-dom</summary>
+  <summary>react-native-dom details</summary>
 
 Make the following additions to the given files manually:
 
-**dom/bootstrap.js**
+#### **dom/bootstrap.js**
 
 Import RCTVideoManager and add it to the list of nativeModules:
 
@@ -269,6 +298,7 @@ var styles = StyleSheet.create({
 * [id](#id)
 * [ignoreSilentSwitch](#ignoresilentswitch)
 * [maxBitRate](#maxbitrate)
+* [minLoadRetryCount](#minLoadRetryCount)
 * [muted](#muted)
 * [paused](#paused)
 * [pictureInPicture](#pictureinpicture)
@@ -301,7 +331,9 @@ var styles = StyleSheet.create({
 * [onFullscreenPlayerDidDismiss](#onfullscreenplayerdiddismiss)
 * [onLoad](#onload)
 * [onLoadStart](#onloadstart)
+* [onReadyForDisplay](#onreadyfordisplay)
 * [onPictureInPictureStatusChanged](#onpictureinpicturestatuschanged)
+* [onPlaybackRateChange](#onplaybackratechange)
 * [onProgress](#onprogress)
 * [onSeek](#onseek)
 * [onRestoreUserInterfaceForPictureInPictureStop](#onrestoreuserinterfaceforpictureinpicturestop)
@@ -363,9 +395,16 @@ Determines whether to show player controls.
 
 Note on iOS, controls are always shown when in fullscreen mode.
 
-Controls are not available Android because the system does not provide a stock set of controls. You will need to build your own or use a package like [react-native-video-controls](https://github.com/itsnubix/react-native-video-controls) or [react-native-video-player](https://github.com/cornedor/react-native-video-player).
+For Android MediaPlayer, you will need to build your own controls or use a package like [react-native-video-controls](https://github.com/itsnubix/react-native-video-controls) or [react-native-video-player](https://github.com/cornedor/react-native-video-player).
 
-Platforms: iOS, react-native-dom
+Platforms: Android ExoPlayer, iOS, react-native-dom
+
+#### disableFocus
+Determines whether video audio should override background music/audio in Android devices.
+* ** false (default)** - Override background audio/music
+* **true** - Let background audio/music from other apps play
+
+Platforms: Android Exoplayer
 
 #### filter
 Add video filter
@@ -388,7 +427,7 @@ Add video filter
 
 For more details on these filters refer to the [iOS docs](https://developer.apple.com/library/archive/documentation/GraphicsImaging/Reference/CoreImageFilterReference/index.html#//apple_ref/doc/uid/TP30000136-SW55).
 
-Notes: 
+Notes:
 1. Using a filter can impact CPU usage. A workaround is to save the video with the filter and then load the saved video.
 2. Video filter is currently not supported on HLS playlists.
 3. `filterEnabled` must be set to `true`
@@ -396,7 +435,7 @@ Notes:
 Platforms: iOS
 
 #### filterEnabled
-Enable video filter. 
+Enable video filter.
 
 * **false (default)** - Don't enable filter
 * **true** - Enable filter
@@ -417,22 +456,25 @@ Platforms: iOS
 
 #### fullscreenOrientation
 
-* **all (default)** - 
+* **all (default)** -
 * **landscape**
 * **portrait**
 
 Platforms: iOS
 
 #### headers
-Pass headers to the HTTP client. Can be used for authorization.
+Pass headers to the HTTP client. Can be used for authorization. Headers must be a part of the source object.
 
 To enable this on iOS, you will need to manually edit RCTVideo.m and uncomment the header code in the playerItemForSource function. This is because the code used a private API and may cause your app to be rejected by the App Store. Use at your own risk.
 
 Example:
 ```
-headers={{
-  Authorization: 'bearer some-token-value',
-  'X-Custom-Header': 'some value'
+source={{
+  uri: "https://www.example.com/video.mp4",
+  headers: {
+    Authorization: 'bearer some-token-value',
+    'X-Custom-Header': 'some value'
+  }
 }}
 ```
 
@@ -441,7 +483,7 @@ Platforms: Android ExoPlayer
 #### hideShutterView
 Controls whether the ExoPlayer shutter view (black screen while loading) is enabled.
 
-* **false (default)** - Show shutter view 
+* **false (default)** - Show shutter view
 * **true** - Hide shutter view
 
 Platforms: Android ExoPlayer
@@ -475,6 +517,18 @@ maxBitRate={2000000} // 2 megabits
 ```
 
 Platforms: Android ExoPlayer, iOS
+
+#### minLoadRetryCount
+Sets the minimum number of times to retry loading data before failing and reporting an error to the application. Useful to recover from transient internet failures.
+
+Default: 3. Retry 3 times.
+
+Example:
+```
+minLoadRetryCount={5} // retry 5 times
+```
+
+Platforms: Android ExoPlayer
 
 #### muted
 Controls whether the audio is muted
@@ -540,7 +594,7 @@ Default: 250.0
 Platforms: all
 
 ### rate
-Speed at which the media should play. 
+Speed at which the media should play.
 * **0.0** - Pauses the video
 * **1.0** - Play at normal speed
 * **Other values** - Slow down or speed up playback
@@ -629,7 +683,7 @@ Type | Value | Description
 "language" | string | Display the text track with the language specified as the Value, e.g. "fr"
 "index" | number | Display the text track with the index specified as the value, e.g. 0
 
-Both iOS & Android (only 4.4 and higher) offer Settings to enable Captions for hearing impaired people. If "system" is selected and the Captions Setting is enabled, iOS/Android will look for a caption that matches that customer's language and display it. 
+Both iOS & Android (only 4.4 and higher) offer Settings to enable Captions for hearing impaired people. If "system" is selected and the Captions Setting is enabled, iOS/Android will look for a caption that matches that customer's language and display it.
 
 If a track matching the specified Type (and Value if appropriate) is unavailable, no text track will be displayed. If multiple tracks match the criteria, the first match will be used.
 
@@ -672,7 +726,7 @@ The docs for this prop are incomplete and will be updated as each option is inve
 
 ##### Asset loaded via require
 
-Example: 
+Example:
 ```
 const sintel = require('./sintel.mp4');
 
@@ -887,7 +941,7 @@ textTracks | array | An array of text track info objects with the following prop
 
 Example:
 ```
-{ 
+{
   canPlaySlowForward: true,
   canPlayReverse: false,
   canPlaySlowReverse: false,
@@ -937,6 +991,17 @@ Example:
 
 Platforms: all
 
+#### onReadyForDisplay
+Callback function that is called when the first video frame is ready for display. This is when the poster is removed.
+
+Payload: none
+
+* iOS: [readyForDisplay](https://developer.apple.com/documentation/avkit/avplayerviewcontroller/1615830-readyfordisplay?language=objc)
+* Android: [MEDIA_INFO_VIDEO_RENDERING_START](https://developer.android.com/reference/android/media/MediaPlayer#MEDIA_INFO_VIDEO_RENDERING_START)
+* Android ExoPlayer [STATE_READY](https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/Player.html#STATE_READY)
+
+Platforms: Android ExoPlayer, Android MediaPlayer, iOS, Web
+
 #### onPictureInPictureStatusChanged
 Callback function that is called when picture in picture becomes active or inactive.
 
@@ -952,6 +1017,23 @@ isActive: true
 ```
 
 Platforms:  iOS
+
+#### onPlaybackRateChange
+Callback function that is called when the rate of playback changes - either paused or starts/resumes.
+
+Property | Type | Description
+--- | --- | ---
+playbackRate | number | 0 when playback is paused, 1 when playing at normal speed. Other values when playback is slowed down or sped up
+
+Example:
+```
+{
+  playbackRate: 0, // indicates paused
+}
+```
+
+Platforms: all
+
 
 #### onProgress
 Callback function that is called every progressUpdateInterval seconds with info about which position the media is currently playing.
@@ -997,7 +1079,7 @@ Both the currentTime & seekTime are reported because the video player may not se
 Platforms: Android ExoPlayer, Android MediaPlayer, iOS, Windows UWP
 
 #### onRestoreUserInterfaceForPictureInPictureStop
-Callback function that corresponds to Apple's [`restoreUserInterfaceForPictureInPictureStopWithCompletionHandler`](https://developer.apple.com/documentation/avkit/avpictureinpicturecontrollerdelegate/1614703-pictureinpicturecontroller?language=objc). Call `restoreUserInterfaceForPictureInPictureStopCompleted` inside of this function when done restoring the user interface. 
+Callback function that corresponds to Apple's [`restoreUserInterfaceForPictureInPictureStopWithCompletionHandler`](https://developer.apple.com/documentation/avkit/avpictureinpicturecontrollerdelegate/1614703-pictureinpicturecontroller?language=objc). Call `restoreUserInterfaceForPictureInPictureStopCompleted` inside of this function when done restoring the user interface.
 
 Payload: none
 
@@ -1078,23 +1160,23 @@ let path = response.uri;
 Notes:
  - Currently only supports highest quality export
  - Currently only supports MP4 export
- - Currently only supports exporting to user's cache directory with a generated UUID filename. 
+ - Currently only supports exporting to user's cache directory with a generated UUID filename.
  - User will need to remove the saved video through their Photos app
  - Works with cached videos as well. (Checkout video-caching example)
  - If the video is has not began buffering (e.g. there is no internet connection) then the save function will throw an error.
  - If the video is buffering then the save function promise will return after the video has finished buffering and processing.
- 
-Future: 
+
+Future:
  - Will support multiple qualities through options
  - Will support more formats in the future through options
  - Will support custom directory and file name through options
- 
+
 Platforms: iOS
 
 #### restoreUserInterfaceForPictureInPictureStopCompleted
 `restoreUserInterfaceForPictureInPictureStopCompleted(restored)`
 
-This function corresponds to the completion handler in Apple's [restoreUserInterfaceForPictureInPictureStop](https://developer.apple.com/documentation/avkit/avpictureinpicturecontrollerdelegate/1614703-pictureinpicturecontroller?language=objc). IMPORTANT: This function must be called after `onRestoreUserInterfaceForPictureInPictureStop` is called. 
+This function corresponds to the completion handler in Apple's [restoreUserInterfaceForPictureInPictureStop](https://developer.apple.com/documentation/avkit/avpictureinpicturecontrollerdelegate/1614703-pictureinpicturecontroller?language=objc). IMPORTANT: This function must be called after `onRestoreUserInterfaceForPictureInPictureStop` is called.
 
 Example:
 ```
@@ -1180,12 +1262,13 @@ zip -r -n .mp4 *.mp4 player.video.example.com
 <Video source={{uri: "background", mainVer: 1, patchVer: 0}} // Looks for .mp4 file (background.mp4) in the given expansion version.
        resizeMode="cover"           // Fill the whole screen at aspect ratio.
        style={styles.backgroundVideo} />
+```
 
 ### Load files with the RN Asset System
 
 The asset system [introduced in RN `0.14`](http://www.reactnative.com/react-native-v0-14-0-released/) allows loading image resources shared across iOS and Android without touching native code. As of RN `0.31` [the same is true](https://github.com/facebook/react-native/commit/91ff6868a554c4930fd5fda6ba8044dbd56c8374) of mp4 video assets for Android. As of [RN `0.33`](https://github.com/facebook/react-native/releases/tag/v0.33.0) iOS is also supported. Requires `react-native-video@0.9.0`.
 
-```
+```javascript
 <Video
   source={require('../assets/video/turntable.mp4')}
 />
@@ -1214,10 +1297,42 @@ To enable audio to play in background on iOS the audio session needs to be set t
 
 ## Updating
 
+### Version 5.0.0
+
+Probably you want to update your gradle version:
+#### gradle-wrapper.properties
+```diff
+- distributionUrl=https\://services.gradle.org/distributions/gradle-3.3-all.zip
++ distributionUrl=https\://services.gradle.org/distributions/gradle-5.1.1-all.zip
+```
+
+#### **android/app/build.gradle**
+
+From version >= 5.0.0, you have to apply this changes:
+
+```diff
+dependencies {
+   ...
+    compile project(':react-native-video')
++   implementation "androidx.appcompat:appcompat:1.0.0"
+-   implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+
+}
+```
+
+#### **android/gradle.properties**
+
+Migrating to AndroidX (needs version >= 5.0.0):
+
+```gradle.properties
+android.useAndroidX=true
+android.enableJetifier=true
+```
+
 ### Version 4.0.0
 
-#### Gradle 3 and SDK 26 requirement
-In order to support ExoPlayer 2.9.0, you must use version 3 or higher of the Gradle plugin. This is included by default in React Native 0.57. ExoPlayer 
+#### Gradle 3 and target SDK 26 requirement
+In order to support ExoPlayer 2.9.0, you must use version 3 or higher of the Gradle plugin. This is included by default in React Native 0.57.
 
 #### ExoPlayer 2.9.0 Java 1.8 requirement
 ExoPlayer 2.9.0 uses some Java 1.8 features, so you may need to enable support for Java 1.8 in your app/build.gradle file. If you get an error, compiling with ExoPlayer like:
@@ -1252,7 +1367,7 @@ Previously, on Android MediaPlayer if you setup an AppState event when the app w
 
 Note, Windows does not have a concept of an app going into the background, so this doesn't apply there.
 
-#### Use Android SDK 27 by default
+#### Use Android target SDK 27 by default
 Version 3.0 updates the Android build tools and SDK to version 27. React Native is in the process of [switchting over](https://github.com/facebook/react-native/issues/18095#issuecomment-395596130) to SDK 27 in preparation for Google's requirement that new Android apps [use SDK 26](https://android-developers.googleblog.com/2017/12/improving-app-security-and-performance.html) by August 2018.
 
 You will either need to install the version 27 SDK and version 27.0.3 buildtools or modify your build.gradle file to configure react-native-video to use the same build settings as the rest of your app as described below.
