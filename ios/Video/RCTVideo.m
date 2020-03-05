@@ -714,8 +714,6 @@ static int const RCTVideoUnset = -1;
 
         return;
       }
-  } else if ([super respondsToSelector:@selector(observeValueForKeyPath:ofObject:change:context:)]) {
-    [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
   }
 }
 
