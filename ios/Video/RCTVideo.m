@@ -27,8 +27,6 @@ static int const RCTVideoUnset = -1;
   AVPlayer *_player;
   AVPlayerItem *_playerItem;
   NSDictionary *_source;
-  AVPictureInPictureController *_pipController;
-  void (^__strong _Nonnull _restoreUserInterfaceForPIPStopCompletionHandler)(BOOL);
   BOOL _playerItemObserversSet;
   BOOL _playerBufferEmpty;
   AVPlayerLayer *_playerLayer;
