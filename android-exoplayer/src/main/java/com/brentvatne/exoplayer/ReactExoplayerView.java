@@ -315,6 +315,10 @@ class ReactExoplayerView extends FrameLayout implements
      */
     private void addPlayerControl() {
         if(player == null) return;
+        // Set up the control view if we haven't yet
+        if (playerControlView == null) {
+            initializePlayerControl();
+        }
         LayoutParams layoutParams = new LayoutParams(
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT);
@@ -390,8 +394,7 @@ class ReactExoplayerView extends FrameLayout implements
                     loadVideoStarted = true;
                 }
 
-                // Initializing the playerControlView
-                initializePlayerControl();
+                // Initializing the playerControlView if needed
                 setControls(controls);
                 applyModifiers();
             }
